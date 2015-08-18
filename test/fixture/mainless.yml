@@ -1,0 +1,3 @@
+app:
+    url: %app_url%
+    test: 123

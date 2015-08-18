@@ -1,0 +1,12 @@
+app:
+    url: %app_url%
+    
+api:
+    url: %api_url%
+    #hide credentials
+    credentials:
+        username: app
+        password: "N&F3BUAlPrhLi9@BRmqg"
+
+sync:
+    output: front/vendor/sync-version/sync-version.js
