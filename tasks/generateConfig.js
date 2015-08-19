@@ -1,10 +1,10 @@
-module.exports = function(grunt) {
+var task = function(grunt) {
 
     var path = require('path');
     var url = require('url');
-    var YAML = require('yamljs');
     var _ = require('lodash');
-    
+    var YAML = require('yamljs');
+
     var checkYAML = function(filePath) {
         // Remove nonexistent files.
         var extTest = /^ya?ml$/i;
@@ -18,11 +18,11 @@ module.exports = function(grunt) {
             return true;
         }
     };
-    
-    var Binder = function() {
+
+    function Binder () {
         var parameters = {};
         var dist = {};
-        
+
         var checkFormat = function(p) {
             if(p && typeof p === 'object') {
                 for(var i in p) {
@@ -36,10 +36,10 @@ module.exports = function(grunt) {
             } else {
                 throw new Error('Wrong parameters format');
             }
-            
+
             return true;
         };
-        
+
         this.setParametersFile = function(filePath){
             if(checkYAML(filePath)) {
                 var p = grunt.file.readYAML(filePath);
@@ -50,14 +50,14 @@ module.exports = function(grunt) {
                 throw new Error('Wrong parameters file format');
             }
         };
-        
+
         this.setDistFile = function(filePath){
             var p = grunt.file.readYAML(filePath);
             if(checkFormat(p)) {
                 dist = p;
             }
         };
-        
+
         this.compare = function() {
             for(var key in dist) {
                 if(!parameters[key]) {
@@ -65,7 +65,7 @@ module.exports = function(grunt) {
                 }
             }
         };
-        
+
         this.compile = function(rawConfig) {
             for (var key in parameters) {
                 var regex = new RegExp("\%" + key + "\%", "g");
@@ -75,14 +75,12 @@ module.exports = function(grunt) {
             return YAML.parse(rawConfig);
         };
     };
-    
-    var configurations = [];
 
-    grunt.registerMultiTask('externalConfig', "Find json files, compile and save as translations data", function() {
+    grunt.registerMultiTask("generateConfig", "", function() {
         var done = this.async();
-        grunt.log.debug('Starting task "generateTranslations"...');
+        grunt.log.debug('Starting task "generateConfig"...');
         var options = this.options({
-            dest: "/"
+            dest: ""
         });
         options.target = this.target;
 
@@ -94,7 +92,7 @@ module.exports = function(grunt) {
             binder.setParametersFile(parameters);
             binder.setDistFile(parameters + '.dist');
             binder.compare();
-            
+
             grunt.log.debug('Handling output file "' + dest + options.target + '.json".');
 
             // Concatenate the source files.
@@ -105,16 +103,18 @@ module.exports = function(grunt) {
             }).map(	function(filePath) {
                 return grunt.file.read(filePath);
             });
-            
+
             for(var i in contentSources) {
                 _.merge(config, binder.compile(contentSources[i]));
             }
-            
-            grunt.log.debug('Writing output...');
-            grunt.file.write(dest + options.target + '.json', JSON.stringify(config));
-            grunt.log.debug('File "'+dest + options.target + '.json'+'" created.');
+
+            grunt.log.debug('Writing JSON...');
+            grunt.file.write(dest + options.target+ '.json', JSON.stringify(config));
+            grunt.log.debug('File "'+dest + options.target+ '.json" created.');
         });
 
         done();
     });
 };
+
+module.exports = task;
