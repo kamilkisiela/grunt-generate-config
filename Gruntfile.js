@@ -1,50 +1,51 @@
 'use strict';
 
-module.exports = function(grunt) {
+module.exports = function (grunt) {
 
     // Project configuration.
     grunt.initConfig({
-        jshint: {
-            all: [
-                'Gruntfile.js',
-                'tasks/*.js',
-                '<%= nodeunit.tests %>'
-            ],
-            options: {
-                jshintrc: '.jshintrc'
-            }
-        },
-
-        // Before generating any new files, remove any previously-created files.
-        clean: {
-            tests: ['test/tmp']
-        },
-        // Unit tests.
-        nodeunit: {
-            tests: ['test/test.js']
-        },
-        externalConfig: {
-            options: {
-                parameters: 'test/fixture/parameters.yml',
-                dest: 'test/tmp/'
+            jshint: {
+                all: [
+                    'Gruntfile.js',
+                    'tasks/*.js',
+                    '<%= nodeunit.tests %>'
+                ],
+                options: {
+                    jshintrc: '.jshintrc'
+                }
             },
-            main: {
-                src: ['test/fixture/main.yml', 'test/fixture/mainless.yml']
+            // Before generating any new files, remove any previously-created files.
+            clean: {
+                tests: ['test/tmp']
+            },
+            // Unit tests.
+            nodeunit: {
+                tests: ['test/test_task.js', 'test/test_lib.js']
+            },
+            generateConfig: {
+                options: {
+                    parameters: 'test/fixture/parameters.yml',
+                    dest: 'test/tmp/'
+                },
+                main: {
+                    src: ['test/fixture/main.yml', 'test/fixture/mainless.yml']
+                }
             }
         }
-    });
+    )
+    ;
 
     // Actually load this plugin's task(s).
     grunt.loadTasks('tasks');
-    
+
     // These plugins provide necessary tasks.
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-contrib-nodeunit');
-
+    
     // Whenever the "test" task is run, first clean the "tmp" dir, then run this
     // plugin's task(s), then test the result.
-    grunt.registerTask('test', ['clean', 'externalConfig', 'nodeunit']);
+    grunt.registerTask('test', ['clean', 'generateConfig', 'nodeunit']);
 
     // By default, lint and run all tests.
     grunt.registerTask('default', ['jshint', 'test']);
